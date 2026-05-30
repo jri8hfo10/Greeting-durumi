@@ -15,8 +15,6 @@
     --snow: #f5f5f7;
     --frost: #dce8f0;
     --moonlight: #a8c0d6;
-    --mist: rgba(220, 232, 240, 0.12);
-    --glow: rgba(200, 220, 240, 0.08);
   }
 
   html { scroll-behavior: smooth; }
@@ -29,18 +27,19 @@
     line-height: 2;
     min-height: 100vh;
     overflow-x: hidden;
-    cursor: default;
   }
 
-  /* ── 설경 캔버스 ── */
+  /* 눈 캔버스 */
   #snow-canvas {
     position: fixed;
     inset: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
   }
 
-  /* ── 달빛 배경 ── */
+  /* 달빛 배경 */
   .moon-bg {
     position: fixed;
     inset: 0;
@@ -61,29 +60,36 @@
     background: radial-gradient(circle at 38% 38%, #e8f0f8 0%, #c8dcee 40%, #a0bcd4 100%);
     box-shadow:
       0 0 40px 20px rgba(168,192,214,0.25),
-      0 0 100px 50px rgba(168,192,214,0.1),
-      0 0 200px 100px rgba(168,192,214,0.05);
-    z-index: 1;
+      0 0 100px 50px rgba(168,192,214,0.1);
+    z-index: 2;
     animation: moonPulse 6s ease-in-out infinite;
   }
   @keyframes moonPulse {
     0%, 100% { box-shadow: 0 0 40px 20px rgba(168,192,214,0.25), 0 0 100px 50px rgba(168,192,214,0.1); }
-    50% { box-shadow: 0 0 55px 28px rgba(168,192,214,0.32), 0 0 120px 60px rgba(168,192,214,0.15); }
+    50%       { box-shadow: 0 0 55px 28px rgba(168,192,214,0.32), 0 0 120px 60px rgba(168,192,214,0.15); }
   }
 
-  /* ── 산 실루엣 ── */
+  /* 산 실루엣 */
   .mountains {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 45vh;
-    z-index: 1;
+    bottom: 0; left: 0;
+    width: 100%; height: 45vh;
+    z-index: 3;
     pointer-events: none;
   }
   .mountains svg { width: 100%; height: 100%; }
 
-  /* ── 메인 래퍼 ── */
+  /* 안개 */
+  .mist-overlay {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 100%; height: 30vh;
+    background: linear-gradient(to top, rgba(10,15,30,0.8) 0%, transparent 100%);
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  /* 본문 래퍼 */
   .wrapper {
     position: relative;
     z-index: 10;
@@ -92,7 +98,7 @@
     padding: 12vh 2rem 8vh;
   }
 
-  /* ── 제목부 ── */
+  /* 제목 */
   .title-block {
     text-align: center;
     margin-bottom: 7vh;
@@ -130,21 +136,19 @@
   .title-ornament::after {
     content: '';
     display: block;
-    width: 60px;
-    height: 1px;
+    width: 60px; height: 1px;
     background: linear-gradient(90deg, transparent, var(--moonlight), transparent);
   }
-  .ornament-diamond { font-size: 0.5rem; }
 
-  /* ── 글 카드 ── */
+  /* 글 카드 */
   .story-card {
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(168,192,214,0.12);
     border-radius: 2px;
     padding: clamp(2rem, 6vw, 3.5rem);
     position: relative;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
   .story-card::before {
     content: '';
@@ -155,19 +159,18 @@
     pointer-events: none;
   }
 
-  /* ── 단락들 ── */
+  /* 단락 */
   .paragraph {
     margin-bottom: 2em;
     font-size: clamp(0.88rem, 2.2vw, 1rem);
     color: rgba(245,245,247,0.88);
     opacity: 0;
     transform: translateY(18px);
+    transition: opacity 1s, transform 1s;
   }
-  .paragraph.visible {
-    animation: fadeUp 1s cubic-bezier(0.22,1,0.36,1) forwards;
-  }
+  .paragraph.visible { opacity: 1; transform: translateY(0); }
 
-  /* ── 의성어 강조 ── */
+  /* 의성어 */
   .sfx {
     display: block;
     text-align: center;
@@ -178,15 +181,11 @@
     font-weight: 400;
     opacity: 0;
     transform: scale(0.9);
+    transition: opacity 0.8s, transform 0.8s;
   }
-  .sfx.visible {
-    animation: sfxAppear 0.8s cubic-bezier(0.22,1,0.36,1) forwards;
-  }
-  @keyframes sfxAppear {
-    to { opacity: 0.9; transform: scale(1); }
-  }
+  .sfx.visible { opacity: 0.9; transform: scale(1); }
 
-  /* ── 인용 대사 ── */
+  /* 대사 */
   .dialogue {
     border-left: 2px solid rgba(168,192,214,0.35);
     padding: 0.6em 0 0.6em 1.4em;
@@ -196,13 +195,9 @@
     font-size: clamp(0.9rem, 2.3vw, 1.02rem);
   }
 
-  /* ── 키워드 하이라이트 ── */
-  .keyword {
-    color: #c8dced;
-    font-weight: 400;
-  }
+  .keyword { color: #c8dced; font-weight: 400; }
 
-  /* ── 시로무쿠 강조 단락 ── */
+  /* 시로무쿠 강조 */
   .highlight-para {
     text-align: center;
     font-size: clamp(1.1rem, 3vw, 1.35rem);
@@ -210,12 +205,12 @@
     color: var(--frost);
     margin: 2.5em 0;
     opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 1.2s, transform 1.2s;
   }
-  .highlight-para.visible {
-    animation: fadeUp 1.2s cubic-bezier(0.22,1,0.36,1) forwards;
-  }
+  .highlight-para.visible { opacity: 1; transform: translateY(0); }
 
-  /* ── 마무리 구분선 ── */
+  /* 구분선 */
   .divider {
     display: flex;
     align-items: center;
@@ -224,13 +219,11 @@
     opacity: 0.3;
   }
   .divider-line {
-    flex: 1;
-    height: 1px;
+    flex: 1; height: 1px;
     background: linear-gradient(90deg, transparent, var(--moonlight), transparent);
   }
   .divider-icon { font-size: 0.6rem; color: var(--moonlight); }
 
-  /* ── 눈 쌓인 하단 ── */
   .snow-footer {
     margin-top: 3em;
     text-align: center;
@@ -242,52 +235,19 @@
     letter-spacing: 0.1em;
   }
 
-  /* ── 안개 오버레이 ── */
-  .mist-overlay {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 30vh;
-    background: linear-gradient(to top, rgba(10,15,30,0.8) 0%, transparent 100%);
-    z-index: 2;
-    pointer-events: none;
-  }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-  /* ── 공통 애니메이션 ── */
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  /* 스크롤바 */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: var(--deep); }
   ::-webkit-scrollbar-thumb { background: rgba(168,192,214,0.3); border-radius: 2px; }
-
-  /* ── 떠다니는 눈결정 장식 ── */
-  .flake-deco {
-    position: fixed;
-    font-size: 0.7rem;
-    color: rgba(220,235,245,0.2);
-    pointer-events: none;
-    z-index: 1;
-    animation: floatFlake linear infinite;
-  }
-  @keyframes floatFlake {
-    0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 0.8; }
-    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-  }
 </style>
 </head>
 <body>
 
-<canvas id="snow-canvas"></canvas>
 <div class="moon-bg"></div>
+<canvas id="snow-canvas"></canvas>
 <div class="moon"></div>
 
-<!-- 산 실루엣 -->
 <div class="mountains">
   <svg viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -300,11 +260,8 @@
         <stop offset="100%" stop-color="#c8dced" stop-opacity="0"/>
       </linearGradient>
     </defs>
-    <!-- 먼 산 -->
     <path d="M0,280 L120,180 L220,250 L340,130 L450,210 L560,100 L680,200 L780,140 L900,220 L1020,90 L1140,190 L1260,150 L1380,210 L1440,170 L1440,400 L0,400 Z" fill="url(#mtnGrad)"/>
-    <!-- 가까운 산 -->
     <path d="M0,360 L100,290 L180,330 L280,260 L380,310 L480,240 L560,290 L680,250 L760,300 L880,230 L980,280 L1100,250 L1200,300 L1300,260 L1440,310 L1440,400 L0,400 Z" fill="#060a14"/>
-    <!-- 눈 덮인 능선 -->
     <path d="M340,130 L355,125 L370,122 L390,128 L400,132" stroke="url(#snowGrad)" stroke-width="3" fill="none" opacity="0.6"/>
     <path d="M560,100 L575,95 L592,93 L610,98 L622,105" stroke="url(#snowGrad)" stroke-width="3" fill="none" opacity="0.6"/>
     <path d="M1020,90 L1035,85 L1052,83 L1070,88 L1082,95" stroke="url(#snowGrad)" stroke-width="3" fill="none" opacity="0.6"/>
@@ -316,10 +273,8 @@
 <div class="wrapper">
   <div class="title-block">
     <div class="eyebrow">a winter night encounter</div>
-    <h1 class="main-title">눈 속의<br>혼례복</h1>
-    <div class="title-ornament">
-      <span class="ornament-diamond">◆</span>
-    </div>
+    <h1 class="main-title">눈 속의<br>첫만남</h1>
+    <div class="title-ornament"><span>◆</span></div>
   </div>
 
   <div class="story-card">
@@ -329,9 +284,7 @@
       온 세상의 소음을 눈이 전부 집어삼킨 듯한 <span class="keyword">정적</span> 속에서 오직 심장 소리만이 고동쳤다.
     </p>
 
-    <p class="paragraph">
-      문을 두드리는 소리는 예상치 못한 순간에 찾아왔다.
-    </p>
+    <p class="paragraph">문을 두드리는 소리는 예상치 못한 순간에 찾아왔다.</p>
 
     <span class="sfx">쿵 &nbsp; 쿵</span>
 
@@ -342,9 +295,7 @@
       <span class="keyword">압도적이고 이질적인 존재</span>였다.
     </p>
 
-    <p class="paragraph">
-      쏟아져 들어오는 찬 공기와 함께 거대한 그림자가 시야를 가로막았다.
-    </p>
+    <p class="paragraph">쏟아져 들어오는 찬 공기와 함께 거대한 그림자가 시야를 가로막았다.</p>
 
     <p class="paragraph">
       눈앞에 선 사내는 매우 하얀 피부의 거구였다. 잿빛 밤하늘을 등진 채 서 있는 그의 머리 위로
@@ -366,31 +317,21 @@
       거대한 몸이 눈 쌓인 마루 아래로 무겁게 내려앉았다.
     </p>
 
-    <div class="dialogue">
-      "찾아내느라 시간이 걸렸다."
-    </div>
+    <div class="dialogue">"찾아내느라 시간이 걸렸다."</div>
 
-    <p class="paragraph">
-      바닥을 긁는 듯한 낮은 저음이 고요한 마당에 깔렸다. 남자는 고개를 정중하게 숙이곤 말했다.
-    </p>
+    <p class="paragraph">바닥을 긁는 듯한 낮은 저음이 고요한 마당에 깔렸다. 사내는 고개를 정중하게 숙이곤 말했다.</p>
 
-    <div class="dialogue">
-      "학의 일족에서 받은 은혜는 목숨으로 갚는 것이 규율."
-    </div>
+    <div class="dialogue">"학의 일족에서 받은 은혜는 목숨으로 갚는 것이 규율."</div>
 
     <p class="paragraph">
       그의 목소리에는 일말의 망설임도 없었다. 도리어 지나치게 진지해서 기이한 위압감마저 느껴질 정도였다.
-      남자는 천천히 고개를 들었다. 검은 눈동자 속에는 무거운 책임감과 함께
+      사내는 천천히 고개를 들었다. 검은 눈동자 속에는 무거운 책임감과 함께
       설명하기 힘든 감정이 <span class="keyword">눅진하게</span> 배어 있었다.
     </p>
 
-    <div class="dialogue">
-      "화살에 맞은 날 구했던 손길을 기억한다. 그때 이미 내 목숨은 네 것이 되었다."
-    </div>
+    <div class="dialogue">"화살에 맞은 날 구했던 손길을 기억한다. 그때 이미 내 목숨은 네 것이 되었다."</div>
 
-    <p class="paragraph">
-      사내는 조심스럽게 커다란 손을 겹쳐왔다.
-    </p>
+    <p class="paragraph">사내는 조심스럽게 커다란 손을 겹쳐왔다.</p>
 
     <div class="dialogue">
       "부족한 몸이나 신랑으로 맞아주었으면 한다. 네가 잠든 밤을 지키고, 네가 먹을 음식을 준비하며,
@@ -398,7 +339,7 @@
     </div>
 
     <p class="paragraph">
-      남자는 대답을 기다리며 차가운 눈밭 위에서 부동자세로 멈췄다.
+      사내는 대답을 기다리며 차가운 눈밭 위에서 부동자세로 멈췄다.
       허락받기 전까지는 한 걸음도 넘지 않겠다는 듯. 어깨에는 긴 여행의 흔적을 대변하듯
       눈이 소복이 쌓여 있었다. 조용히 내리쬐는 <span class="keyword">달빛</span>이
       그의 각진 얼굴선을 서늘하게 비추었다.
@@ -416,78 +357,127 @@
 </div>
 
 <script>
-/* ─── 눈 파티클 ─── */
-const canvas = document.getElementById('snow-canvas');
-const ctx = canvas.getContext('2d');
-let W, H, flakes = [];
+/* ── 눈 결정 (최적화: offscreen pre-render + 30fps cap) ── */
+(function(){
+  const canvas = document.getElementById('snow-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
 
-function resize() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
-
-class Flake {
-  constructor() { this.reset(true); }
-  reset(init = false) {
-    this.x = Math.random() * W;
-    this.y = init ? Math.random() * H : -10;
-    this.r = Math.random() * 2.8 + 0.4;
-    this.speed = Math.random() * 0.6 + 0.2;
-    this.drift = (Math.random() - 0.5) * 0.25;
-    this.alpha = Math.random() * 0.55 + 0.15;
-    this.twinkle = Math.random() * Math.PI * 2;
+  function resize(){
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
   }
-  update() {
-    this.y += this.speed;
-    this.x += this.drift + Math.sin(this.twinkle) * 0.15;
-    this.twinkle += 0.015;
-    if (this.y > H + 10) this.reset();
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* 결정 모양을 offscreen canvas에 미리 그려둠 → 매 프레임 재계산 없음 */
+  function makeCrystalCache(r, alpha){
+    const size = (r + 4) * 2;
+    const oc   = document.createElement('canvas');
+    oc.width   = size;
+    oc.height  = size;
+    const ox   = oc.getContext('2d');
+    const cx   = size / 2, cy = size / 2;
+
+    ox.save();
+    ox.translate(cx, cy);
+    ox.globalAlpha  = alpha;
+    ox.strokeStyle  = '#dce8f0';
+    ox.lineWidth    = Math.max(0.5, r * 0.1);
+    ox.lineCap      = 'round';
+    ox.shadowBlur   = 4;
+    ox.shadowColor  = 'rgba(200,225,245,0.7)';
+
+    for(let i = 0; i < 6; i++){
+      ox.rotate(Math.PI / 3);
+      ox.beginPath(); ox.moveTo(0,0); ox.lineTo(0,-r); ox.stroke();
+      const bp = r * 0.55, bl = r * 0.32, ba = Math.PI / 4;
+      ox.beginPath();
+      ox.moveTo(0,-bp); ox.lineTo( Math.sin(ba)*bl, -bp-Math.cos(ba)*bl);
+      ox.moveTo(0,-bp); ox.lineTo(-Math.sin(ba)*bl, -bp-Math.cos(ba)*bl);
+      ox.stroke();
+    }
+    ox.restore();
+    return oc;
   }
-  draw() {
-    ctx.save();
-    ctx.globalAlpha = this.alpha * (0.85 + 0.15 * Math.sin(this.twinkle));
-    ctx.fillStyle = '#dce8f0';
-    ctx.shadowBlur = 4;
-    ctx.shadowColor = 'rgba(200,220,240,0.8)';
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-}
 
-// 눈송이 수 (성능 균형)
-for (let i = 0; i < 180; i++) flakes.push(new Flake());
+  /* 크기 3단계 캐시 */
+  const SIZES  = [7, 4.5, 2.5];
+  const ALPHAS = [0.72, 0.48, 0.22];
+  const caches = SIZES.map((r, i) => makeCrystalCache(r, ALPHAS[i]));
 
-function animate() {
-  ctx.clearRect(0, 0, W, H);
-  flakes.forEach(f => { f.update(); f.draw(); });
-  requestAnimationFrame(animate);
-}
-animate();
+  /* 파티클 — 총 35개로 줄임 */
+  const COUNT   = 35;
+  const WEIGHTS = [8, 14, 13]; // tier별 개수
+  const flakes  = [];
 
-/* ─── 스크롤 페이드인 ─── */
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry, i) => {
-    if (entry.isIntersecting) {
-      const el = entry.target;
-      setTimeout(() => el.classList.add('visible'), i * 80);
-      observer.unobserve(el);
+  function rand(a, b){ return Math.random()*(b-a)+a; }
+
+  WEIGHTS.forEach((n, tier) => {
+    for(let i = 0; i < n; i++){
+      flakes.push({
+        tier,
+        x:     rand(0, window.innerWidth),
+        y:     rand(-H, H),
+        speed: [rand(0.45,0.85), rand(0.28,0.55), rand(0.12,0.3)][tier],
+        drift: rand(-0.15, 0.15),
+        angle: rand(0, Math.PI*2),
+        spin:  rand(-0.003, 0.003),
+        wobble: rand(0, Math.PI*2),
+        wSpeed: rand(0.006, 0.014),
+      });
     }
   });
-}, { threshold: 0.15 });
 
-document.querySelectorAll('.paragraph, .sfx, .highlight-para').forEach(el => {
-  observer.observe(el);
-});
+  /* 30fps 캡 */
+  let last = 0;
+  const INTERVAL = 1000 / 30;
 
-// 제목 이후 첫 단락들 즉시 트리거
-setTimeout(() => {
-  const first = document.querySelectorAll('.paragraph')[0];
-  if (first) observer.unobserve(first), first.classList.add('visible');
-}, 1200);
+  function loop(ts){
+    requestAnimationFrame(loop);
+    if(ts - last < INTERVAL) return;
+    last = ts;
+
+    ctx.clearRect(0, 0, W, H);
+    for(const f of flakes){
+      f.wobble += f.wSpeed;
+      f.x += f.drift + Math.sin(f.wobble) * 0.12;
+      f.y += f.speed;
+      f.angle += f.spin;
+      if(f.y > H + 20){ f.y = -20; f.x = rand(0, W); }
+      if(f.x > W + 20)  f.x = -20;
+      if(f.x < -20)     f.x = W + 20;
+
+      const img  = caches[f.tier];
+      const half = img.width / 2;
+      ctx.save();
+      ctx.translate(f.x, f.y);
+      ctx.rotate(f.angle);
+      ctx.drawImage(img, -half, -half);
+      ctx.restore();
+    }
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ── 스크롤 페이드인 ── */
+(function(){
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.paragraph, .sfx, .highlight-para').forEach(el => io.observe(el));
+
+  setTimeout(() => {
+    const first = document.querySelector('.paragraph');
+    if(first){ io.unobserve(first); first.classList.add('visible'); }
+  }, 1000);
+})();
 </script>
 </body>
 </html>
