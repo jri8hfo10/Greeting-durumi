@@ -36,7 +36,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 50;
+    z-index: 1;
   }
 
   /* 달빛 배경 */
@@ -61,7 +61,7 @@
     box-shadow:
       0 0 40px 20px rgba(168,192,214,0.25),
       0 0 100px 50px rgba(168,192,214,0.1);
-    z-index: 1;
+    z-index: 2;
     animation: moonPulse 6s ease-in-out infinite;
   }
   @keyframes moonPulse {
@@ -92,6 +92,7 @@
   /* 본문 래퍼 */
   .wrapper {
     position: relative;
+    z-index: 10;
     max-width: 680px;
     margin: 0 auto;
     padding: 12vh 2rem 8vh;
@@ -146,6 +147,8 @@
     border-radius: 2px;
     padding: clamp(2rem, 6vw, 3.5rem);
     position: relative;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
   .story-card::before {
     content: '';
@@ -269,7 +272,7 @@
 
 <div class="wrapper">
   <div class="title-block">
-    <div class="eyebrow">a winter night encounter</div>
+    <div class="eyebrow">ある冬の夜の出会い</div>
     <h1 class="main-title">눈 속의<br>첫만남</h1>
     <div class="title-ornament"><span>◆</span></div>
   </div>
@@ -398,13 +401,14 @@
     return oc;
   }
 
-  /* 크기 4단계 캐시 — 앞레이어 추가 */
-  const SIZES  = [13, 7, 4.5, 2.5];
-  const ALPHAS = [0.55, 0.72, 0.48, 0.22];
+  /* 크기 3단계 캐시 */
+  const SIZES  = [7, 4.5, 2.5];
+  const ALPHAS = [0.72, 0.48, 0.22];
   const caches = SIZES.map((r, i) => makeCrystalCache(r, ALPHAS[i]));
 
-  /* 파티클 — 총 75개, tier0=앞/크게, tier1~3=뒤 */
-  const WEIGHTS = [12, 18, 24, 21];
+  /* 파티클 — 총 35개로 줄임 */
+  const COUNT   = 35;
+  const WEIGHTS = [8, 14, 13]; // tier별 개수
   const flakes  = [];
 
   function rand(a, b){ return Math.random()*(b-a)+a; }
@@ -415,10 +419,10 @@
         tier,
         x:     rand(0, window.innerWidth),
         y:     rand(-H, H),
-        speed: [rand(0.9,1.5), rand(0.45,0.85), rand(0.28,0.55), rand(0.12,0.3)][tier],
-        drift: rand(-0.2, 0.2),
+        speed: [rand(0.45,0.85), rand(0.28,0.55), rand(0.12,0.3)][tier],
+        drift: rand(-0.15, 0.15),
         angle: rand(0, Math.PI*2),
-        spin:  rand(-0.005, 0.005),
+        spin:  rand(-0.003, 0.003),
         wobble: rand(0, Math.PI*2),
         wSpeed: rand(0.006, 0.014),
       });
